@@ -27,7 +27,7 @@ namespace Ipfs.Http
     ///   <b>IpfsClient</b> is thread safe, only one instance is required
     ///   by the application.
     /// </remarks>
-    public partial class IpfsClient : ICoreApi
+    public class IpfsClient : GenericApi, ICoreApi
     {
         const string unknownFilename = "unknown";
 
@@ -261,7 +261,7 @@ namespace Ipfs.Http
         /// <exception cref="HttpRequestException">
         ///   When the IPFS server indicates an error.
         /// </exception>
-        public async Task<string> DoCommandAsync(string command, CancellationToken cancel, string arg = null, params string[] options)
+        public override async Task<string> DoCommandAsync(string command, CancellationToken cancel, string arg = null, params string[] options)
         {
             var url = BuildCommand(command, arg, options);
             if (log.IsDebugEnabled)
@@ -321,7 +321,7 @@ namespace Ipfs.Http
         /// <exception cref="HttpRequestException">
         ///   When the IPFS server indicates an error.
         /// </exception>
-        public async Task<T> DoCommandAsync<T>(string command, CancellationToken cancel, string arg = null, params string[] options)
+        public override async Task<T> DoCommandAsync<T>(string command, CancellationToken cancel, string arg = null, params string[] options)
         {
             var json = await DoCommandAsync(command, cancel, arg, options);
             return JsonConvert.DeserializeObject<T>(json);
@@ -349,7 +349,7 @@ namespace Ipfs.Http
         /// <exception cref="HttpRequestException">
         ///   When the IPFS server indicates an error.
         /// </exception>
-        public async Task<Stream> PostDownloadAsync(string command, CancellationToken cancel, string arg = null, params string[] options)
+        public override async Task<Stream> PostDownloadAsync(string command, CancellationToken cancel, string arg = null, params string[] options)
         {
             var url = BuildCommand(command, arg, options);
             if (log.IsDebugEnabled)

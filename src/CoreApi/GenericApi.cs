@@ -10,15 +10,40 @@ using System.Threading.Tasks;
 using System.Threading;
 using Ipfs.CoreApi;
 using Newtonsoft.Json.Linq;
+using Common.Logging;
 
 namespace Ipfs.Http
 {
-    public partial class IpfsClient : IGenericApi
-    {
-        const double TicksPerNanosecond = (double)TimeSpan.TicksPerMillisecond * 0.000001;
 
-        /// <inheritdoc />
-        public Task<Peer> IdAsync(MultiHash peer = null, CancellationToken cancel = default(CancellationToken))
+	/// <summary>
+	///   A client that allows access to the InterPlanetary File System (IPFS).
+	/// </summary>
+	/// <remarks>
+	///   The API is based on the <see href="https://ipfs.io/docs/commands/">IPFS commands</see>.
+	/// </remarks>
+	/// <seealso href="https://ipfs.io/docs/api/">IPFS API</seealso>
+	/// <seealso href="https://ipfs.io/docs/commands/">IPFS commands</seealso>
+	/// <remarks>
+	///   <b>IpfsClient</b> is thread safe, only one instance is required
+	///   by the application.
+	/// </remarks>
+	public abstract class GenericApi : IGenericApi
+    {
+		static ILog log = LogManager.GetLogger(typeof(IpfsClient));
+
+		const double TicksPerNanosecond = (double)TimeSpan.TicksPerMillisecond * 0.000001;
+
+		/// <inheritdoc />
+		public abstract Task<string> DoCommandAsync(string command, CancellationToken cancel, string arg = null, params string[] options);
+
+		/// <inheritdoc />
+		public abstract Task<T> DoCommandAsync<T>(string command, CancellationToken cancel, string arg = null, params string[] options);
+
+		/// <inheritdoc />
+		public abstract Task<Stream> PostDownloadAsync(string command, CancellationToken cancel, string arg = null, params string[] options);
+
+		/// <inheritdoc />
+		public Task<Peer> IdAsync(MultiHash peer = null, CancellationToken cancel = default(CancellationToken))
         {
             return DoCommandAsync<Peer>("id", cancel, peer?.ToString());
         }
